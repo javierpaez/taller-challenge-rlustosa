@@ -15,11 +15,11 @@ This live coding challenge evaluates your ability to design, implement, and opti
 
 *Objective: Implement a feature for reserving books.*
 
-- Create a new endpoint: POST /books/:id/reserve
-- The reservation should contians the email of the user that did the reservation
-- The status of the book should be changed to :reserved
-- Consider potential edge cases (e.g., what happens when a user tries to reserve a book that is already checked out or reserved?).
-- Write unit tests for checking the reservation endpoint
+<!-- - Create a new endpoint: POST /books/:id/reserve -->
+<!-- - The reservation should contians the email of the user that did the reservation -->
+<!-- - The status of the book should be changed to :reserved -->
+<!-- - Consider potential edge cases (e.g., what happens when a user tries to reserve a book that is already checked out or reserved?). -->
+<!-- - Write unit tests for checking the reservation endpoint -->
 
 **2. Optimize GET endpoints**
 

@@ -1,13 +1,13 @@
 class BooksController < ApplicationController
-  before_action :set_book, only: %i[ show update destroy ]
+  before_action :set_book, only: %i[ show update destroy reserve ]
 
   # GET /books
   def index
-    @books = Book.all.order(rating: :desc, publication_date: :desc)
+    @books = Book.includes(:author).all.order(rating: :desc, publication_date: :desc)
     @books = @books.map do |book|
-      { id:book.id, title: book.title, author_name: book.author.name }
+      { id: book.id, title: book.title, author_name: book.author.name }
     end
-    
+
     render json: @books
   end
 
@@ -43,7 +43,7 @@ class BooksController < ApplicationController
 
   # Report books
   def generate_report
-    books = Book.all
+    books = Book.includes(:author, author: :books).all
     report = []
 
     books.each do |book|
@@ -66,6 +66,17 @@ class BooksController < ApplicationController
     render json: { report: report, generated_at: Time.now.to_s }
   end
 
+  def reserve
+    if @book.status == 'available' && @book.reserved_by_email.blank?
+      @book.status = 'reserved'
+      @book.reserved_by_email = user_params[:email]
+      @book.save
+      render json: { book: @book }
+    else
+      render json: { book: @book, message: 'Book not available or already reserved' }, status: :unprocessable_entity
+    end
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_book
@@ -75,5 +86,9 @@ class BooksController < ApplicationController
     # Only allow a list of trusted parameters through.
     def book_params
       params.expect(book: [ :title, :author_id, :publication_date, :rating, :status ])
+    end
+
+    def user_params
+      params.require(:user).permit(:email)
     end
 end

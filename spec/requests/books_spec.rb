@@ -29,6 +29,7 @@ RSpec.describe "Books API", type: :request do
       expect {
           get "/books"
       }.to_not raise_error(Bullet::Notification::UnoptimizedQueryError)
+
       expect(JSON.parse(response.body).map { |b| b["id"] }).to eq([book2.id, book1.id, book3.id])
     end
   end
@@ -48,6 +49,26 @@ RSpec.describe "Books API", type: :request do
 
         expect(parsed_response).to include('report')
         expect(parsed_response['report']).to be_an(Array)
+    end
+  end
+
+  describe "POST books/:id/reserve" do
+    it "reserves a book" do
+      book1 = Book.create!(title: "Book 1", author_id: author.id, publication_date: 3.days.ago, rating: 3)
+      expect(book1.status).to eq("available")
+      post "/books/#{book1.id}/reserve", params: { user: { email: 'some@email.com' } }  
+      expect(response).to have_http_status(:ok)
+      book1.reload
+      expect(book1.status).to eq("reserved")
+      expect(book1.reserved_by_email).to eq("some@email.com")
+    end
+
+    it 'returns an error when reservation already exists' do
+      book1 = Book.create!(title: "Book 1", author_id: author.id, publication_date: 3.days.ago, rating: 3, status: 'reserved', reserved_by_email: 'some@email.com')
+      post "/books/#{book1.id}/reserve", params: { user: { email: 'some@email.com' } }
+      expect(response).to have_http_status(:unprocessable_entity)
+      book1.reload
+      expect(book1.status).to eq("reserved")
     end
   end
 end

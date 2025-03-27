@@ -43,7 +43,7 @@ group :development, :test do
   gem 'factory_bot_rails'
   gem 'bullet'
   gem 'faker'
-
+  gem 'byebug'
   # Static analysis for security vulnerabilities [https://brakemanscanner.org/]
   gem "brakeman", require: false
 
